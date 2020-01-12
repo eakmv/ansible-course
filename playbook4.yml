@@ -1,0 +1,36 @@
+---
+- name: Playbook for Var Lesson
+  become: yes
+  hosts: all
+
+  vars:
+    - message1: Hello
+    - message2: World
+
+  tasks:
+
+    - name: Print Secret variables
+      debug:
+        var: message1
+
+    - name: one more debug
+      debug:
+        msg: "Write here Hello {{ message1 }}"
+
+    - name: Print name of Owner
+      debug:
+        msg: "Owner is -->{{ ansible_user }} <--"
+
+    # соединяем между собой несколько переменных
+    - set_fact: full_message="{{ message1 }} {{ message2 }} from {{ ansible_user }}"
+
+    - name: Print full_msg 
+      debug:
+        var: full_message
+
+    # сохраняем вывод комманд
+    - shell: uptime
+      register: results
+
+    - debug:
+        var: results

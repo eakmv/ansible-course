@@ -1,0 +1,30 @@
+---
+- name: Install Apache web-server and Udload Web page
+  hosts: all
+  become: yes
+
+  # задаем переменные
+  vars:
+    source_file: ./MyWebSite/index.html
+    dest_file: /var/www/html
+
+
+  # задаем задачи
+  tasks:
+    - name: Install Apache web-server
+      yum: name=httpd state=latest
+
+    - name: Copy MyWebPage to servers
+      copy: src={{ source_file }} dest={{ dest_file }}
+      # необходимо добавить рестарт сервера, т.к. если мы второй раз запустим
+      # плейбук с уже измененённой страничкой, то он УВИДИТ что файл изменился 
+      # и поменяет его, но РЕСТАРТИТЬ СЕРВЕР ОН НЕ БУДЕТ!, так как он уже запущен
+      notify: Restart Apache
+
+    - name: Start WebServer and make it enable on boot
+      service: name=httpd state=started enabled=yes
+
+  # Обработчики событий
+  handlers:
+    - name: Restart Apache
+      service: name=httpd state=restarted
